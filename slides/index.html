@@ -1,0 +1,215 @@
+<!doctype html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+	<title>Svelte</title>
+
+	<link rel="stylesheet" href="dist/reset.css">
+	<link rel="stylesheet" href="dist/reveal.css">
+	<link rel="stylesheet" href="dist/theme/white.css">
+	<link rel="stylesheet" href="dist/custom.css">
+
+	<!-- Theme used for syntax highlighted code -->
+	<link rel="stylesheet" href="plugin/highlight/monokai.css">
+</head>
+
+<body>
+	<div class="reveal">
+		<div class="slides">
+			<section class="title" data-background-image="dist/img/svelte-logo.svg" data-background-size="30%"
+				data-background-position="70% 40%">
+				<div>
+					<h1>Svelte</h1>
+					<h2 class="subtitle">Cybernetically enhanced web apps</h2>
+				</div>
+			</section>
+
+			<section>
+				<h1>Was ist Svelte?</h1>
+				<blockquote>
+					<p>Svelte is a radical new approach to building user interfaces. […]</p>
+					<p>Instead of using techniques like virtual DOM diffing, Svelte writes code that surgically updates
+						the DOM when the state of your app changes.</p>
+					<div class="source">von <a href="https://svelte.dev">svelte.dev</a></div>
+				</blockquote>
+			</section>
+
+			<section>
+				<h1>Was is Svelte?</h1>
+				<ul>
+					<li>Node.js-basierter Compiler für Frontend-Komponenten</li>
+					<li>Übersetzt Svelte-Komponenten (HTML+CSS+JS/TS) in Vanilla HTML+CSS+JS<br>
+						⇨ kein Framework-Code zur Laufzeit<sup>*</sup>
+					</li>
+					<li>Datenfluss über reaktive Variablen mit direkten DOM-Updates (kein VDOM etc.)</li>
+				</ul>
+				<div class="footnote"><sup>*</sup> Zumindest kein Svelte-Code</div>
+			</section>
+
+			<section>
+				<h1>Anatomie einer Svelte-Komponente</h1>
+				<pre>Component.svelte:
+					<code data-trim>
+					&lt;script lang="ts"&gt;
+					    // JavaScript oder TypeScript Code der Komponente
+					&lt;/script&gt;
+
+					&lt;style&gt;
+					    /* lokale Styles (werden vom Compiler in
+					       Namespace verpackt) */
+					&lt;/style&gt;
+
+					&lt;!-- HTML Fragment --&gt;
+					&lt;div&gt;[…]&lt;/div&gt;
+					&lt;p&gt;[…]&lt;/p&gt;
+					[…]
+				</code></pre>
+				<div>⇨ Ergibt eine in anderen Svelte-Komponenten importierbare Komponente</div>
+			</section>
+
+			<section>
+				<h1>Anatomie einer Svelte-Komponente - HTML</h1>
+				<ul>
+					<li>Standard-HTML-Fragment mit (möglicherweise) mehreren DOM-Nodes<br>
+						⇨ kein Root-Node, kein <code>&lt;React.Fragment /&gt;</code></li>
+					<li>Spezielle <code>&lt;svelte:..&gt;</code>-Elemente zur Steuerung spezieller Features
+						(Fenster-Titel etc.)</li>
+					<li>Template-Anweisungen für Bedingungen (<code>{#if…}</code>), Schleifen (<code>{#each…}</code>),
+						Promises (<code>{await…}</code>) etc.</li>
+					<li>Zusätzlich Attribute für Event-Handling (<code>on:<em>event</em></code>) &amp; Data-Binding
+						(<code>bind:…</code>) etc.</li>
+				</ul>
+			</section>
+
+			<section>
+				<h1>Anatomie einer Svelte-Komponente - CSS</h1>
+				<ul>
+					<li>Standard-<code>&lt;style&gt;</code>-Block</li>
+					<li>Unterstützung von LESS, SASS und anderen (via <code>svelte-preprocess</code>)</li>
+					<li>Selectoren sind scoped innerhalb der Komponente<br>
+						⇨ keine Kollision mit anderen Komponenten
+						<ul>
+							<li>Ausnahme: Selectoren mit <code>global(…)</code></li>
+						</ul>
+					</li>
+				</ul>
+			</section>
+
+			<section>
+				<h1>Anatomie einer Svelte-Komponente - Code</h1>
+				<h2 class="subtitle">Properties</h2>
+				<pre>
+							User.svelte:
+							<code data-trim>
+							&lt;script lang="ts"&gt;
+							  export let title: string;
+							  export let name: { first: string, last: string };
+							&lt;/script&gt;
+
+							<p>Hello {title} {first} {last}!</p>
+						</code></pre>
+				<pre class="fragment">
+							UserComponent.svelte:
+							<code class="svelte" data-trim>
+								&lt;script lang="ts"&gt;
+								import User from './User.svelte';
+								&lt;/script&gt;
+
+								&lt;User title="His Highness" name={{first: "John", last: "Doe"}} /&gt;
+						</code></pre>
+				</p>
+			</section>
+
+			<section>
+				<h1>Anatomie einer Svelte-Komponente - Code</h1>
+				<h2 class="subtitle">Reaktivität</h2>
+				<pre><code data-trim>
+					&lt;script lang="ts"&gt;
+						let clicked: boolean = false;
+
+						$: buttonTitle = clicked ? "Click me!" : "Yeah!";
+					&lt;/script&gt;
+
+					&lt;button on:click={() =&gt; {clicked = true;}&gt;
+						{buttonTitle}
+					&lt;/button&gt;
+				</code></pre>
+				<ul>
+					<li>reaktive Variablen-Zuweisungen ⇨ Update aller abhängigen Elemente</li>
+					<li>Blöcke mit <code>$:</code>-Präfix werden bei jeder Änderung verwendeter Variablen ausgeführt (vgl. <code>React.useEffect()</code>)</li>
+				</ul>
+			</section>
+
+			<section>
+				<h1>Anatomie einer Svelte-Komponente - Code</h1>
+				<h2 class="subtitle">Events</h2>
+				<ul>
+					<li>Verwendung des DOM-Event-Mechanismus<br>
+					⇨ <em>kein</em> globales Event-Handling wie bei React</li>
+					<li>Standard-DOM-Events + CustomEvents mit einheitlicher Syntax: <code>on:<em>eventname</em></code></li>
+					<li>Modifier für Standardaufgaben: <code>on:<em>event|modifier</em></code></li>
+				</ul>
+				<pre><code data-trim>
+					const dispatch = createEventDispatcher();
+					[…]
+					dispatch("myEvent", {some: "additional", data: 10});
+				</code></pre>
+				<pre><code data-trim>
+					&lt;MyComponent on:myEvent={ev = console.log(ev.details)} /&gt; ;
+					&lt;form on:submit|preventDefault={submitHandler} /&gt;
+				</code></pre>
+			</section>
+
+			<section class="title">
+				<h1>DEMO</h1>
+
+				<aside class="notes">
+					<h2>Setup</h2>
+					<ul>
+						<li><code>npx degit sveltejs/template git-release-list</code></li>
+						<li><code>cd git-release-list</code></li>
+						<li><code>npm i svelte-markdown</code></li>
+						<li><code>npm install</code></li>
+						<li><code>npm run dev</code></li>
+					</ul>
+					<h2>Development</h2>
+					<ol>
+						<li>Extra Konsolenfenster (nicht Yakuake)</li>
+						<li>Fenster nebeneinander geteilt, Schrift größer</li>
+						<li>Titel &amp; Untertitel austauschen
+							<ul>
+								<li>
+									schonmal die Reaktivität demonstrieren
+								</li>
+							</ul>
+						</li>
+						<li>CSS ohne größere Kommentare reinkopieren</li>
+					</ol>
+				</aside>
+			</section>
+		</div>
+	</div>
+
+	<script src="dist/reveal.js"></script>
+	<script src="plugin/notes/notes.js"></script>
+	<script src="plugin/markdown/markdown.js"></script>
+	<script src="plugin/highlight/highlight.js"></script>
+	<script>
+		// More info about initialization & config:
+		// - https://revealjs.com/initialization/
+		// - https://revealjs.com/config/
+		Reveal.initialize({
+			hash: true,
+
+			// Learn about plugins: https://revealjs.com/plugins/
+			plugins: [RevealMarkdown, RevealHighlight, RevealNotes],
+
+			totalTime: 15*60
+		});
+	</script>
+</body>
+
+</html>

@@ -1,0 +1,53 @@
+:root {
+    --original-heading1-size: var(--r-heading1-size);
+    --r-heading1-size: 40px;
+}
+
+h2.subtitle {
+    font-size: 80%;
+    color: #707070;
+}
+/*
+h1 {
+    position: absolute;
+    top: 2%;
+    left: 2%;
+    font-size: 1rem;
+} */
+
+section{
+    height: 100vh;
+    width: 100vw;
+}
+
+section.title h1 {
+    font-size: 300%;
+    text-align: center;
+    position: relative;
+}
+
+section.title {
+    height: unset;
+    width: unset;
+}
+
+div.source {
+    text-align: right;
+    font-size: 70%;
+}
+div.footnote {
+    font-size: 60%;
+    position: absolute;
+    text-align: right;
+    width: 100%;
+}
+
+code {
+    font-size: 70%;
+    background-color: #E0E0E0;
+    border-radius: 0.5rem;
+}
+
+pre > code {
+    border-radius: 2px;
+}
